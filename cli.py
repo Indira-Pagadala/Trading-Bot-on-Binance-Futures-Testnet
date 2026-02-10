@@ -5,6 +5,7 @@ from rich.panel import Panel
 
 from bot.client import get_client
 from bot.orders import create_order
+from bot.logging_config import setup_logger
 
 app = typer.Typer()
 console = Console()
@@ -12,6 +13,8 @@ console = Console()
 
 @app.command()
 def trade():
+    setup_logger()
+
     console.print(
         Panel.fit(
             "[bold cyan]Welcome to Binance Futures Trading Bot (Testnet)[/bold cyan]",
@@ -48,7 +51,11 @@ def trade():
             order = create_order(client, symbol, side, "MARKET", quantity)
 
         elif order_choice == 2:
-            price = FloatPrompt.ask("Limit price", min=0.01)
+            while True:
+                price = FloatPrompt.ask("Limit price")
+                if price >= 0.01:
+                    break
+                console.print("[bold red]Limit price must be at least 0.01[/bold red]")
             order = create_order(
                 client,
                 symbol,
@@ -59,8 +66,16 @@ def trade():
             )
 
         elif order_choice == 3:
-            stop_price = FloatPrompt.ask("Stop price", min=0.01)
-            limit_price = FloatPrompt.ask("Limit price", min=0.01)
+            while True:
+                stop_price = FloatPrompt.ask("Stop price")
+                if stop_price >= 0.01:
+                    break
+                console.print("[bold red]Stop price must be at least 0.01[/bold red]")
+            while True:
+                limit_price = FloatPrompt.ask("Limit price")
+                if limit_price >= 0.01:
+                    break
+                console.print("[bold red]Limit price must be at least 0.01[/bold red]")
 
             order = create_order(
                 client,
